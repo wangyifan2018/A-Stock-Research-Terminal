@@ -1,0 +1,34 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: deepresearch-terminal-api
+    env_file:
+      - .env
+    environment:
+      OPENFR_CACHE_BACKEND: sqlite
+      OPENFR_SQLITE_CACHE_PATH: /app/.openfr_cache/cache.sqlite3
+      OPENFR_AKSHARE_MAX_WORKERS: 4
+      OPENFR_TOOL_MAX_WORKERS: 3
+    ports:
+      - "8000:8000"
+    volumes:
+      - openfr-cache:/app/.openfr_cache
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_OPENFR_API_BASE_URL: http://localhost:8000
+    container_name: deepresearch-terminal-web
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  openfr-cache:

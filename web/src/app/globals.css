@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 6%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 6%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 186 100% 50%;
+    --primary-foreground: 222 47% 4%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 158 64% 52%;
+    --accent-foreground: 222 47% 4%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 195 45% 18%;
+    --input: 195 45% 18%;
+    --ring: 186 100% 50%;
+    --radius: 0.9rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply min-h-screen bg-background text-foreground antialiased;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(34, 211, 238, 0.2), transparent 28rem),
+      radial-gradient(circle at 80% 0%, rgba(16, 185, 129, 0.16), transparent 26rem),
+      linear-gradient(180deg, #020617 0%, #030712 55%, #020617 100%);
+  }
+}
+
+@layer utilities {
+  .cyber-grid {
+    background-image:
+      linear-gradient(rgba(34, 211, 238, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34, 211, 238, 0.06) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+
+  .terminal-scrollbar {
+    scrollbar-color: rgba(34, 211, 238, 0.35) rgba(15, 23, 42, 0.4);
+    scrollbar-width: thin;
+  }
+
+  .terminal-scrollbar::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+  }
+
+  .terminal-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(34, 211, 238, 0.35);
+    border-radius: 999px;
+  }
+}
