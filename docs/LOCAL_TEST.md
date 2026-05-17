@@ -1,6 +1,6 @@
-# Local testing checklist
+# Local Testing Checklist
 
-Use this guide to verify **API**, **SSE research stream**, and **web dashboard** before publishing or opening a PR.
+Use this guide to verify **API**, **SSE research stream**, **Agent Snapshot Sync**, and the **web dashboard** before publishing or opening a PR.
 
 ## 1. Environment variables
 
@@ -83,7 +83,41 @@ If Docker is not installed, install from [Docker documentation](https://docs.doc
 ## 5. Automated tests (no live LLM required)
 
 ```bash
-uv run --extra dev python -m pytest tests/test_network_resilience.py tests/test_tools.py tests/test_akshare_compat.py
+.venv/bin/python -m pytest \
+  tests/test_api_stream.py \
+  tests/test_market_snapshot_api.py \
+  tests/test_network_resilience.py \
+  tests/test_stability_hardening.py \
+  tests/test_akshare_compat.py
 ```
 
 Integration tests that call real LLMs expect repo root `.env`; see [tests/test_integration.py](../tests/test_integration.py).
+
+Frontend checks:
+
+```bash
+cd web
+npm run typecheck
+npm run test
+npm run build
+```
+
+## 6. Agent Snapshot Sync checklist
+
+During a successful Deep Research run:
+
+1. The right terminal should show `Data Intel -> Bull vs Bear -> Risk Control`.
+2. The `Fundamentals Analyst` SSE event may include `dashboard_snapshot`.
+3. The left K-line panel should switch from `FALLBACK OHLC` / `AKSHARE OHLC` to `AGENT SNAPSHOT OHLC` when the structured snapshot arrives.
+4. `Copy Markdown` and `Export PDF` should only be enabled after `event: complete`.
+
+## 7. Known safety defaults
+
+`py_mini_racer` and 同花顺 fallback data paths are disabled by default because some macOS/Python combinations can crash at the native layer.
+
+Do not enable these unless you are testing in an isolated environment:
+
+```bash
+OPENFR_ENABLE_THS_DATA=1
+OPENFR_ENABLE_MINI_RACER=1
+```

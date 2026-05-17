@@ -1,8 +1,8 @@
 <div align="center">
 
-# DeepResearch-Terminal
+# A-Stock-Research-Terminal
 
-### The open-source Bloomberg-style AI research terminal for people who refuse to wait, leak strategies, or pay five figures for market intelligence.
+### Open-source Bloomberg-style AI research terminal for A-share deep research, multi-agent debate, and cyberpunk real-time dashboards.
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
@@ -11,7 +11,7 @@
 [![AKShare](https://img.shields.io/badge/Data-AKShare-FF6B00?style=for-the-badge)](https://github.com/akfamily/akshare)
 [![Docker](https://img.shields.io/badge/Run-docker--compose%20up-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 
-[Quick Start](#quick-start) • [Why It Exists](#why-it-exists) • [Architecture](#architecture) • [Local LLMs](#local-llms) • [API](#streaming-api) • [Roadmap](#roadmap)
+[Quick Start](#quick-start) • [Features](#features) • [Architecture](#architecture) • [API](#streaming-api) • [Testing](#testing) • [Safety](#safety-notes)
 
 </div>
 
@@ -19,7 +19,7 @@
 
 ## What Is This?
 
-**DeepResearch-Terminal** turns an old-school CLI financial research agent into a full-stack, streaming, multi-agent research cockpit.
+**A-Stock-Research-Terminal** turns a CLI financial research agent into a full-stack, streaming, multi-agent research cockpit for A-share analysis.
 
 It combines:
 
@@ -36,13 +36,26 @@ This is not another toy chatbot. It is a local-first research engine that lets A
 
 ---
 
+## Features
+
+- **DeepResearch Terminal**: FastAPI SSE streams LangGraph nodes into a Next.js terminal UI.
+- **Three-phase agent workflow**: Data Intel -> Bull vs Bear -> Risk Control.
+- **War-room debate view**: Bull and Bear researchers render as left/right versus chat bubbles.
+- **Live chart sync**: the left K-line and metric cards can consume the same structured `dashboard_snapshot` collected during the right-side research run.
+- **Real data with fallback**: AKShare data, stale cache rescue, and graceful UI fallback when upstream sources are slow or unavailable.
+- **Export workflow**: Copy Markdown and Export PDF after the stream completes.
+- **Local-first LLMs**: supports OpenAI-compatible `base_url` for local gateways, vLLM, Ollama-compatible proxies, DeepSeek-compatible services, and hosted providers.
+- **Hardening for unstable data sources**: bounded worker pools, retry/backoff, SQLite cache, SSE heartbeat, disconnect cleanup, and default mini_racer isolation.
+
+---
+
 ## Why It Exists
 
 ### Local-First Multi-Agent Research
 
 Your positions, watchlists, factor ideas, prompts, and research flow should not be sprayed across random SaaS dashboards.
 
-DeepResearch-Terminal can run against local or self-hosted OpenAI-compatible models, which means your research process stays close to your machine and your strategy stays private.
+A-Stock-Research-Terminal can run against local or self-hosted OpenAI-compatible models, which means your research process stays close to your machine and your strategy stays private.
 
 ### Real-Time Streaming Architecture
 
@@ -78,19 +91,11 @@ DeepResearch-Terminal is the open-source alternative for people who want:
 
 ---
 
-## Screenshots
+## Screenshot
 
-Add your screenshots here after running the dashboard:
+The dashboard contains a left-side K-line/financial metric area and a right-side AI Research Terminal with phase tracking, collapsible analyst logs, Bull/Bear debate bubbles, and a sticky final verdict.
 
-```txt
-docs/assets/dashboard.png
-docs/assets/research-terminal.gif
-```
-
-Suggested capture:
-
-- Left: TradingView-style K-line chart and valuation cards
-- Right: live multi-agent terminal streaming research steps
+> Add public screenshots under `docs/assets/` before publishing a release.
 
 ---
 
@@ -99,8 +104,8 @@ Suggested capture:
 ### 1. Clone
 
 ```bash
-git clone https://github.com/your-name/deepresearch-terminal.git
-cd deepresearch-terminal
+git clone https://github.com/wangyifan2018/A-Stock-Research-Terminal.git
+cd A-Stock-Research-Terminal
 ```
 
 ### 2. Configure Environment
@@ -151,7 +156,7 @@ http://localhost:8000/health
 
 ```bash
 pip install -r requirements_api.txt
-uvicorn api.main:app --host 0.0.0.0 --port 8000
+.venv/bin/python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
 ```
 
 ### Frontend
@@ -207,11 +212,13 @@ Streaming Final Report
 
 - FastAPI service in `api/main.py`
 - SSE endpoint: `POST /api/v1/research/stream`
+- Market snapshot endpoint: `GET /api/v1/market/snapshot`
 - LangGraph orchestration through `ResearchGraph`
 - OpenAI-compatible LLM configuration with custom `base_url`
 - Async-safe blocking AKShare calls via thread pool wrappers
 - Concurrent tool execution for independent read-only tools
 - SQLite cache for financial statements and low-frequency data
+- Structured `dashboard_snapshot` propagation from agent prefetch into SSE
 
 ### Frontend Highlights
 
@@ -222,6 +229,8 @@ Streaming Final Report
 - Markdown AI terminal
 - POST-based SSE stream parser
 - Typewriter-style multi-agent rendering
+- Phase Stepper and Bull/Bear War Room view
+- Markdown/PDF export tools
 
 ---
 
@@ -267,6 +276,27 @@ Example stream payload:
 }
 ```
 
+When the fundamentals prefetch succeeds, `agent_step` may also include:
+
+```json
+{
+  "dashboard_snapshot": {
+    "ticker": "sh600519",
+    "code": "600519",
+    "updated_at": "2026-05-18T00:00:00",
+    "source": "agent_snapshot",
+    "stale": false,
+    "candles": [
+      { "time": 1704067200, "open": 1, "high": 2, "low": 0.5, "close": 1.5 }
+    ],
+    "metrics": [
+      { "label": "PE", "value": "10.0x", "trend": "flat" }
+    ],
+    "errors": []
+  }
+}
+```
+
 ---
 
 ## Local LLMs
@@ -294,7 +324,7 @@ The same fields can also be passed per request to the streaming API.
 
 ---
 
-## Performance Notes
+## Safety Notes
 
 AKShare is synchronous. Running it directly inside FastAPI would block the event loop.
 
@@ -307,6 +337,17 @@ This project wraps blocking data access with worker threads and uses concurrent 
 
 Low-frequency data is cached locally with SQLite to reduce remote calls and lower the risk of rate limiting or IP blocking.
 
+### mini_racer / 同花顺 Safety
+
+Some AKShare/同花顺 paths may load `py_mini_racer` and crash at the native layer on certain macOS/Python combinations. OpenFR disables these paths by default.
+
+Only enable them in an isolated environment known to be stable:
+
+```bash
+OPENFR_ENABLE_THS_DATA=1
+OPENFR_ENABLE_MINI_RACER=1
+```
+
 Useful knobs:
 
 ```bash
@@ -318,6 +359,27 @@ OPENFR_TOOL_PARALLEL_TIMEOUT=30
 OPENFR_CACHE_BACKEND=sqlite
 OPENFR_SQLITE_CACHE_PATH=.openfr_cache/cache.sqlite3
 ```
+
+---
+
+## Testing
+
+Backend focused regression:
+
+```bash
+.venv/bin/python -m pytest tests/test_api_stream.py tests/test_market_snapshot_api.py tests/test_network_resilience.py tests/test_stability_hardening.py -q
+```
+
+Frontend:
+
+```bash
+cd web
+npm run typecheck
+npm run test
+npm run build
+```
+
+Manual checklist: [docs/LOCAL_TEST.md](docs/LOCAL_TEST.md).
 
 ---
 
@@ -338,14 +400,13 @@ OPENFR_SQLITE_CACHE_PATH=.openfr_cache/cache.sqlite3
 
 ## Roadmap
 
-- Real K-line API endpoint for the dashboard
 - Watchlist and multi-symbol batch research
-- Research report export to PDF/Markdown
 - Redis cache backend
 - User-defined agent roles
 - Backtesting-aware research prompts
 - Portfolio-level risk dashboard
 - Auth and team deployment mode
+- Hosted SaaS workspace with private team deployments
 
 ---
 

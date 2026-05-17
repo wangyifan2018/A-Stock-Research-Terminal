@@ -1,10 +1,12 @@
 <div align="center">
 
+# A-Stock-Research-Terminal
+
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![AKShare](https://img.shields.io/badge/powered%20by-AKShare-orange.svg)](https://github.com/akfamily/akshare)
 
-**OpenFR：轻量级金融研究 Agent | 基于 AKShare | 支持多种 LLM | 多 Agent 协作深度分析**
+**A 股 Deep Research 终端 | FastAPI + Next.js + SSE | LangGraph 多智能体投研驾驶舱**
 
 [English](README.md) | [快速开始](#快速开始) • [功能特性](#功能特性) • [使用指南](#使用指南) • [配置说明](#配置说明) • [架构设计](#架构设计)
 
@@ -14,19 +16,21 @@
 
 ## 📊 项目简介
 
-OpenFR (Open Financial Research) 是一个**极简、轻量**的智能金融研究 Agent，基于大语言模型并集成 AKShare 数据接口，通过**多 Agent 协作**完成股票、基金、期货、指数、宏观经济等全方位投资研究。
+OpenFR / A-Stock-Research-Terminal 是一个面向 A 股研究的开源 AI 投研终端。项目包含 Python/LangGraph 多智能体研究引擎、FastAPI SSE 流式接口，以及 Next.js 深色极客风 Dashboard。
+
+它可以让多个 Agent 依次完成行情/基本面/新闻/宏观分析，再进行多空辩论、风险评估，并将最终结论实时流式展示到右侧 AI Research Terminal。左侧 K 线和指标卡会优先使用右侧研究过程中采集到的结构化 `dashboard_snapshot`，避免左右两侧数据不一致。
 
 <a id="功能特性"></a>
 ### ✨ 核心特性
 
-- 🌱 **极简 & 轻量** — 纯 Python 包 + Typer CLI，仅依赖 AKShare 数据，一条命令即可开始研究
+- 🖥️ **全栈投研驾驶舱** — FastAPI + Next.js + SSE 实时流式推演
 - 🧠 **多 Agent 协作** — 四分析师 + 多空辩论 + 风险三方评估，基于 LangGraph StateGraph 编排
 - ⏱️ **节点级耗时打点** — 每个 Agent 节点执行后实时显示耗时，便于定位性能瓶颈
 - 📋 **完整中间报告** — 市场/基本面/新闻/宏观报告、辩论过程、风险评估均完整展示
 - 📈 **丰富的数据源** — 35+ 金融数据工具，覆盖 A 股、港股、基金、期货、指数、宏观及行业板块
 - 🔄 **多 LLM 支持** — 支持 15+ 主流 LLM 提供商（国产 + 海外 + 本地），兼容 OpenAI / Anthropic 格式
 - 🎨 **美观的 CLI** — Rich 终端界面，实时展示各阶段进度与完整分析内容
-- 🔌 **智能备用切换** — 东方财富 + 新浪 + 同花顺多数据源自动切换与重试
+- 🔌 **智能备用切换** — 东方财富 + 新浪等数据源自动切换与重试；同花顺/mini_racer 高风险路径默认关闭
 - 💾 **缓存友好** — 股票列表缓存 6 小时，部分行情接口缓存 1 分钟，减少重复请求
 - 🛡️ **错误恢复** — 失败重试、降级替代及"基于已有信息收尾"保护逻辑
 
@@ -88,8 +92,8 @@ END
 
 ```bash
 # 克隆仓库
-git clone https://github.com/openmozi/openfr.git
-cd openfr
+git clone https://github.com/wangyifan2018/A-Stock-Research-Terminal.git
+cd A-Stock-Research-Terminal
 
 # 创建虚拟环境
 python -m venv .venv
